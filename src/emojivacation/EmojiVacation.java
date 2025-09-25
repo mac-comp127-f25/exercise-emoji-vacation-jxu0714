@@ -1,7 +1,6 @@
 package emojivacation;
 
 import edu.macalester.graphics.*;
-
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,10 @@ public class EmojiVacation {
 
     private static void doSlideShow(CanvasWindow canvas) {
         // TODO: [Instructions step 8] Change this to an actual slideshow
-        generateVacationPhoto(canvas);
+        while (true){generateVacationPhoto(canvas);
+        canvas.draw();
+        canvas.pause(3000);
+        canvas.removeAll();}
     }
 
     private static void generateVacationPhoto(CanvasWindow canvas) {
@@ -43,11 +45,21 @@ public class EmojiVacation {
 
         addCloudRows(canvas);
 
+        if(random.nextDouble() < 0.5){
+            int layers = random.nextInt(3) + 3;
+            int size = random.nextInt(225, 275);
+            addMountains(canvas, 500, size, layers);
+        }
         // TODO: [Instructions step 2] Create mountains 50% of the time.
         //       You should randomly determine the size and number of layers
         //       (within reasonable constraints).
-
+ 
         addGround(canvas, 400);
+
+        if(random.nextDouble() > 0.4){
+            int counts = randomInt(30,60);
+            addForest(canvas, 350, 100, counts);
+        }
 
         // TODO: [Instructions step 2] Create forests 60% of the time. You should randomly
         //       determine the count for the number of trees. Pick reasonable values for
@@ -55,27 +67,62 @@ public class EmojiVacation {
 
         List<GraphicsGroup> family = createFamily(2, 3);
         positionFamily(family, 60, 550, 20);
-        // TODO: [Instructions step 4] Add each emoji in the list to the canvas
-    }
 
+        for(GraphicsGroup emojis : family){
+            canvas.add(emojis);
+        }
+
+        // TODO: [Instructions step 4] Add each emoji in the list to the canvas
+
+        //I'm not very sure that I still need this part for adding emoji to the canvas, maybe something goes wrong at one step, but it works overall.
+        
+        // GraphicsGroup mediumSmiley = Emojis.createSmileyFace(200);
+        // canvas.add(mediumSmiley);
+
+        // GraphicsGroup Frowny = ProvidedEmojis.createFrownyFace(200);
+        // canvas.add(Frowny);
+
+        // GraphicsGroup Whinking = ProvidedEmojis.createWinkingFace(200);
+        // canvas.add(Whinking);
+
+        // GraphicsGroup Contented =ProvidedEmojis.createContentedFace(200);
+        // canvas.add(Contented);
+
+        // GraphicsGroup Nauseous = ProvidedEmojis.createNauseousFace(200);
+        // canvas.add(Nauseous);
+    }
     // –––––– Emoji family –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
     private static List<GraphicsGroup> createFamily(int adultCount, int childCount) {
         double adultSize = 160, childSize = 90;
-
+        List<GraphicsGroup> family = new ArrayList<>();
+        for (int i = 0; i < adultCount; i++){
+            family.add(createRandomEmoji(adultSize));
+        }
+        for (int i = 0; i < childCount; i++){
+            family.add(createRandomEmoji(childSize));
+        }
+        return family;
         // TODO: [Instructions step 6] Change this so that instead of always creating one adult
         //       and one child, it instead creates a list containing adultCount adults,
         //       and childCount children.
         //
         // Hint: You can't use List.of() to do this, because you don't know the size of the
         // resulting list before the code actually runs. What can you use?
-        //
-        return List.of(
-            createRandomEmoji(adultSize),
-            createRandomEmoji(childSize));
     }
 
     private static GraphicsGroup createRandomEmoji(double size) {
+        int choice = random.nextInt(5);
+        if (choice == 0){
+            return Emojis.createSmileyFace(size);
+        }else if (choice == 1){
+            return ProvidedEmojis.createFrownyFace(size);
+        }else if (choice == 2){
+            return ProvidedEmojis.createWinkingFace(size);
+        }else if (choice == 3){
+            return ProvidedEmojis.createContentedFace(size);
+        }else{
+            return ProvidedEmojis.createNauseousFace(size);
         // TODO: [Instructions step 7] Change this so that instead of always creating a smiley face,
         //       it randomly selects one of the many available emojis.
         //
@@ -83,7 +130,7 @@ public class EmojiVacation {
         // type A, else with some other probability return emoji type B, else with a certain
         // probability ... etc ... else return a smiley by default.
         //
-        return ProvidedEmojis.createSmileyFace(size);
+    }
     }
 
     private static void positionFamily(
@@ -91,7 +138,14 @@ public class EmojiVacation {
             double leftX,
             double baselineY,
             double spacing
-    ) {
+    ) { double x = leftX;
+        for (GraphicsGroup emoji : family) {
+            double width = emoji.getWidth();
+            double height = emoji.getHeight();
+            double y = baselineY - height;
+            emoji.setPosition(x, y);
+            x += width + spacing;
+        }
         // TODO: [Instructions step 5] Iterate over the emojis in the list,
         //       and position them all in a neat row
 
